@@ -12,9 +12,7 @@ ENV JBOSS_HOME /opt/jboss/wildfly
 
 RUN mkdir -p /opt/jboss/wildfly
 RUN apk add --update curl && rm -rf /var/cache/apk/*
-RUN groupadd -r jboss -g 1000 \
-    && useradd -u 1000 -r -g jboss -m -d /opt/jboss -s /sbin/nologin -c "JBoss user" jboss \
-    && chmod 755 /opt/jboss
+RUN addgroup -S jboss && adduser -S -g jboss jboss
 
 #Add Wildfly to this image
 RUN cd $HOME \
