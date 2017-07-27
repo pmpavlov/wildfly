@@ -1,8 +1,8 @@
 FROM jdk-alpine
 
 MAINTAINER Pavlov <ppavlov@dontmail.me>
-LABEL name="sonarqube"
-LABEL version="2.2"
+LABEL name="wildfly"
+LABEL version="10.1.0"
 LABEL maintainer "ppavlov@dontmail.me"
 LABEL architecture="x86_64"
 
