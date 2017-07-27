@@ -1,0 +1,35 @@
+dist: trusty
+sudo: false
+language: bash
+services:
+- docker
+env:
+  global:
+  - PATH=$HOME/.local/bin:$PATH
+# create a travis env variable to get the first 6 chars of the git commit hash. $TRAVIS_COMMIT has the full hash value.
+  - COMMIT=${TRAVIS_COMMIT::7}
+before_install:
+- pip install --user awscli
+- echo "Testing Docker Hub credentials"
+- docker login -e $DOCKER_EMAIL -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD
+- echo "Docker Hub credentials are working"
+before_script:
+- docker build --pull=true --rm=false -t ppavlov/wildfly .
+- docker run -d -p 8080:8080 ppavlov/wildfly; sleep 10
+script:
+- docker ps -a
+- curl --retry 10 --retry-delay 5 -v http://localhost:8080/
+after_success:
+- echo "Test Success - Branch($TRAVIS_BRANCH) Pull Request($TRAVIS_PULL_REQUEST) Tag($TRAVIS_TAG)"
+- export REPO=ppavlov/wildfly
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
+- echo $REPO:$TAG:$COMMIT
+- docker build -t $REPO:$COMMIT .
+- docker tag $REPO:$COMMIT $REPO:$TAG
+- docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
+- docker push $REPO
+notifications:
+  email: true
+#  irc: "irc.freenode.org#shields"
+  slack:
+    secure: g3T1WXwC4KfMsUUBWaY0gFC3/5Sf5E6BICb0lDD75RmIRmKXxe3lNgEM1KGdysaZar6wg+jwuzcWfQkltreV7upaPOdeh0o2qrm80mcZUjC84iQjQmCLBOQkibQSIF4qGHR+IywZAGCgkFcE3zk7Sf111CxOVChVtpv9P3AalLXDRth4mx/Lx05c+LlNfjOOH8OOozM1eifakfS6ZVfQsEr5HP+XanPgXHfVcjC8wt6qjj6PFYPhfB6ciGLEnBH12uA/aogZkYI4NEzd+XyjMtZqL6zm1QIT+YlpPD2l+LorkY8prAGq3j9LQOD3cB2x4OpARBOfVfD/qKvLxM1L8/qWgrz8CRzCUS+Y6YwvL3gkccKdoB+BS5jyuzrQ1sm4ptMmHq31lIi2zDRpCKtCWyi8rkky0l/M+xcYKPwbcIIHB25LDIRsfTh3sRNn9BMmldrTvmI/e581NJusTEywmx5dBmX6hw9T04o97CauYP9YtFbk7nuHaDs8LToFEMjDCIK73K9chtH6fkqFJsUTt3Dg8PTnLIJqIx2noyNdmcjSy4kRMC1rGSGDFXCq73UuGyK4TYqSE3NoAxijURY7Rx4A8JQA/L2NKF3BwLiKho5XzjVu5nHexJJNeZg07ZyVo6twoKZ45LqGAdJIv3nwVTdLpYLE0swjVq5h6lgS/eQ=
