@@ -1,4 +1,4 @@
-FROM jdk-alpine
+FROM java:jdk-alpine
 
 MAINTAINER Pavlov <ppavlov@dontmail.me>
 LABEL name="wildfly"
