@@ -11,6 +11,7 @@ ENV WILDFLY_SHA1 9ee3c0255e2e6007d502223916cefad2a1a5e333
 ENV JBOSS_HOME /opt/jboss/wildfly
 
 RUN mkdir -p /opt/jboss/wildfly
+RUN apk add --update curl && rm -rf /var/cache/apk/*
 
 #Add Wildfly to this image
 RUN cd $HOME \
